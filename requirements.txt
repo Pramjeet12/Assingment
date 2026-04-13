@@ -1,0 +1,7 @@
+vanna[google,fastapi]>=2.0.0
+fastapi
+uvicorn[standard]
+plotly
+pandas
+python-dotenv
+pydantic

@@ -1,0 +1,530 @@
+{
+  "passed": 20,
+  "failed": 0,
+  "total": 20,
+  "results": [
+    {
+      "num": 1,
+      "question": "How many patients do we have?",
+      "sql": "SELECT count(id) FROM patients",
+      "status": "PASS",
+      "row_count": 1,
+      "columns": [
+        "count(id)"
+      ],
+      "rows_sample": [
+        [
+          200
+        ]
+      ],
+      "error": null,
+      "chart_type": null,
+      "time": "1.54s"
+    },
+    {
+      "num": 2,
+      "question": "List all doctors and their specializations",
+      "sql": "SELECT name, specialization FROM doctors",
+      "status": "PASS",
+      "row_count": 15,
+      "columns": [
+        "name",
+        "specialization"
+      ],
+      "rows_sample": [
+        [
+          "Dr. Rajesh Sharma",
+          "Dermatology"
+        ],
+        [
+          "Dr. Priya Patel",
+          "Cardiology"
+        ],
+        [
+          "Dr. Amit Gupta",
+          "Orthopedics"
+        ]
+      ],
+      "error": null,
+      "chart_type": null,
+      "time": "1.46s"
+    },
+    {
+      "num": 3,
+      "question": "Show me appointments for last month",
+      "sql": "SELECT * FROM appointments WHERE appointment_date BETWEEN DATE('now', 'start of month', '-1 month') AND DATE('now', 'start of month', '-1 day')",
+      "status": "PASS",
+      "row_count": 38,
+      "columns": [
+        "id",
+        "patient_id",
+        "doctor_id",
+        "appointment_date",
+        "status",
+        "notes"
+      ],
+      "rows_sample": [
+        [
+          5,
+          77,
+          14,
+          "2026-03-25 08:15:00",
+          "Completed",
+          "Follow-up visit"
+        ],
+        [
+          16,
+          96,
+          6,
+          "2026-03-19 09:15:00",
+          "Cancelled",
+          "Symptoms subsiding"
+        ],
+        [
+          22,
+          21,
+          1,
+          "2026-03-15 11:15:00",
+          "Scheduled",
+          "Review in 2 weeks"
+        ]
+      ],
+      "error": null,
+      "chart_type": "bar",
+      "time": "4.59s"
+    },
+    {
+      "num": 4,
+      "question": "Which doctor has the most appointments?",
+      "sql": "SELECT\n  d.name\nFROM doctors AS d\nJOIN appointments AS a\n  ON d.id = a.doctor_id\nGROUP BY\n  d.id,\n  d.name\nORDER BY\n  COUNT(a.id) DESC\nLIMIT 1",
+      "status": "PASS",
+      "row_count": 1,
+      "columns": [
+        "name"
+      ],
+      "rows_sample": [
+        [
+          "Dr. Vikram Singh"
+        ]
+      ],
+      "error": null,
+      "chart_type": null,
+      "time": "1.96s"
+    },
+    {
+      "num": 5,
+      "question": "What is the total revenue?",
+      "sql": "SELECT SUM(total_amount) FROM invoices",
+      "status": "PASS",
+      "row_count": 1,
+      "columns": [
+        "SUM(total_amount)"
+      ],
+      "rows_sample": [
+        [
+          780289.94
+        ]
+      ],
+      "error": null,
+      "chart_type": null,
+      "time": "3.45s"
+    },
+    {
+      "num": 6,
+      "question": "Show revenue by doctor",
+      "sql": "SELECT\n  d.name AS doctor_name,\n  SUM(t.cost) AS total_revenue\nFROM doctors AS d\nJOIN appointments AS a\n  ON d.id = a.doctor_id\nJOIN treatments AS t\n  ON a.id = t.appointment_id\nGROUP BY\n  d.id,\n  d.name\nORDER BY\n  total_revenue DESC",
+      "status": "PASS",
+      "row_count": 15,
+      "columns": [
+        "doctor_name",
+        "total_revenue"
+      ],
+      "rows_sample": [
+        [
+          "Dr. Rajesh Sharma",
+          35540.1
+        ],
+        [
+          "Dr. Vikram Singh",
+          21669.14
+        ],
+        [
+          "Dr. Suresh Kumar",
+          20341.87
+        ]
+      ],
+      "error": null,
+      "chart_type": "bar",
+      "time": "2.93s"
+    },
+    {
+      "num": 7,
+      "question": "How many cancelled appointments last quarter?",
+      "sql": "SELECT COUNT(id) FROM appointments WHERE status = 'Cancelled' AND appointment_date >= DATE(STRFTIME('%Y', 'now') || '-' || CASE WHEN STRFTIME('%m', 'now') BETWEEN '01' AND '03' THEN '01' WHEN STRFTIME('%m', 'now') BETWEEN '04' AND '06' THEN '04' WHEN STRFTIME('%m', 'now') BETWEEN '07' AND '09' THEN '07' ELSE '10' END || '-01', '-3 months') AND appointment_date < DATE(STRFTIME('%Y', 'now') || '-' || CASE WHEN STRFTIME('%m', 'now') BETWEEN '01' AND '03' THEN '01' WHEN STRFTIME('%m', 'now') BETWEEN '04' AND '06' THEN '04' WHEN STRFTIME('%m', 'now') BETWEEN '07' AND '09' THEN '07' ELSE '10' END || '-01')",
+      "status": "PASS",
+      "row_count": 1,
+      "columns": [
+        "COUNT(id)"
+      ],
+      "rows_sample": [
+        [
+          25
+        ]
+      ],
+      "error": null,
+      "chart_type": null,
+      "time": "24.33s"
+    },
+    {
+      "num": 8,
+      "question": "Top 5 patients by spending",
+      "sql": "SELECT\n  p.first_name,\n  p.last_name,\n  SUM(i.total_amount) AS total_spending\nFROM patients AS p\nJOIN invoices AS i\n  ON p.id = i.patient_id\nGROUP BY\n  p.id,\n  p.first_name,\n  p.last_name\nORDER BY\n  total_spending DESC\nLIMIT 5",
+      "status": "PASS",
+      "row_count": 5,
+      "columns": [
+        "first_name",
+        "last_name",
+        "total_spending"
+      ],
+      "rows_sample": [
+        [
+          "Thomas",
+          "Johnson",
+          23915.62
+        ],
+        [
+          "Sarah",
+          "Hernandez",
+          14857.57
+        ],
+        [
+          "David",
+          "Garcia",
+          13197.199999999999
+        ]
+      ],
+      "error": null,
+      "chart_type": null,
+      "time": "1.79s"
+    },
+    {
+      "num": 9,
+      "question": "Average treatment cost by specialization",
+      "sql": "SELECT d.specialization, AVG(t.cost) FROM doctors AS d JOIN appointments AS a ON d.id = a.doctor_id JOIN treatments AS t ON a.id = t.appointment_id GROUP BY d.specialization",
+      "status": "PASS",
+      "row_count": 5,
+      "columns": [
+        "specialization",
+        "AVG(t.cost)"
+      ],
+      "rows_sample": [
+        [
+          "Cardiology",
+          652.4107042253521
+        ],
+        [
+          "Dermatology",
+          775.2067605633803
+        ],
+        [
+          "General",
+          711.7585483870968
+        ]
+      ],
+      "error": null,
+      "chart_type": "bar",
+      "time": "1.60s"
+    },
+    {
+      "num": 10,
+      "question": "Show monthly appointment count for the past 6 months",
+      "sql": "SELECT\n  strftime('%Y-%m', appointment_date) AS appointment_month,\n  COUNT(id) AS appointment_count\nFROM appointments\nWHERE\n  appointment_date >= DATE('now', '-6 months')\nGROUP BY\n  appointment_month\nORDER BY\n  appointment_month",
+      "status": "PASS",
+      "row_count": 7,
+      "columns": [
+        "appointment_month",
+        "appointment_count"
+      ],
+      "rows_sample": [
+        [
+          "2025-10",
+          29
+        ],
+        [
+          "2025-11",
+          43
+        ],
+        [
+          "2025-12",
+          34
+        ]
+      ],
+      "error": null,
+      "chart_type": "line",
+      "time": "2.69s"
+    },
+    {
+      "num": 11,
+      "question": "Which city has the most patients?",
+      "sql": "SELECT city FROM patients GROUP BY city ORDER BY COUNT(id) DESC LIMIT 1",
+      "status": "PASS",
+      "row_count": 1,
+      "columns": [
+        "city"
+      ],
+      "rows_sample": [
+        [
+          "Los Angeles"
+        ]
+      ],
+      "error": null,
+      "chart_type": null,
+      "time": "1.80s"
+    },
+    {
+      "num": 12,
+      "question": "List patients who visited more than 3 times",
+      "sql": "SELECT\n  p.first_name,\n  p.last_name\nFROM patients AS p\nJOIN appointments AS a\n  ON p.id = a.patient_id\nGROUP BY\n  p.id\nHAVING\n  COUNT(a.id) > 3",
+      "status": "PASS",
+      "row_count": 40,
+      "columns": [
+        "first_name",
+        "last_name"
+      ],
+      "rows_sample": [
+        [
+          "James",
+          "White"
+        ],
+        [
+          "James",
+          "Williams"
+        ],
+        [
+          "Mary",
+          "Harris"
+        ]
+      ],
+      "error": null,
+      "chart_type": null,
+      "time": "1.74s"
+    },
+    {
+      "num": 13,
+      "question": "Show unpaid invoices",
+      "sql": "SELECT * FROM invoices WHERE status = 'unpaid'",
+      "status": "PASS",
+      "row_count": 0,
+      "columns": [
+        "id",
+        "patient_id",
+        "invoice_date",
+        "total_amount",
+        "paid_amount",
+        "status"
+      ],
+      "rows_sample": [],
+      "error": null,
+      "chart_type": null,
+      "time": "0.99s"
+    },
+    {
+      "num": 14,
+      "question": "What percentage of appointments are no-shows?",
+      "sql": "SELECT\n  CAST(SUM(CASE WHEN status = 'no-show' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(id)\nFROM appointments",
+      "status": "PASS",
+      "row_count": 1,
+      "columns": [
+        "CAST(SUM(CASE WHEN status = 'no-show' THEN 1 ELSE 0 END) AS REAL) * 100 / COUNT(id)"
+      ],
+      "rows_sample": [
+        [
+          0.0
+        ]
+      ],
+      "error": null,
+      "chart_type": null,
+      "time": "1.83s"
+    },
+    {
+      "num": 15,
+      "question": "Show the busiest day of the week for appointments",
+      "sql": "SELECT\n  CASE strftime('%w', appointment_date)\n    WHEN '0' THEN 'Sunday'\n    WHEN '1' THEN 'Monday'\n    WHEN '2' THEN 'Tuesday'\n    WHEN '3' THEN 'Wednesday'\n    WHEN '4' THEN 'Thursday'\n    WHEN '5' THEN 'Friday'\n    WHEN '6' THEN 'Saturday'\n  END AS day_of_week,\n  COUNT(id) AS total_appointments\nFROM appointments\nGROUP BY\n  day_of_week\nORDER BY\n  total_appointments DESC\nLIMIT 1",
+      "status": "PASS",
+      "row_count": 1,
+      "columns": [
+        "day_of_week",
+        "total_appointments"
+      ],
+      "rows_sample": [
+        [
+          "Monday",
+          82
+        ]
+      ],
+      "error": null,
+      "chart_type": "bar",
+      "time": "2.41s"
+    },
+    {
+      "num": 16,
+      "question": "Revenue trend by month",
+      "sql": "SELECT\n  STRFTIME('%Y-%m', invoice_date) AS sales_month,\n  SUM(total_amount) AS monthly_revenue\nFROM invoices\nGROUP BY\n  sales_month\nORDER BY\n  sales_month",
+      "status": "PASS",
+      "row_count": 13,
+      "columns": [
+        "sales_month",
+        "monthly_revenue"
+      ],
+      "rows_sample": [
+        [
+          "2025-04",
+          26742.13
+        ],
+        [
+          "2025-05",
+          56680.69
+        ],
+        [
+          "2025-06",
+          76972.39
+        ]
+      ],
+      "error": null,
+      "chart_type": "line",
+      "time": "1.64s"
+    },
+    {
+      "num": 17,
+      "question": "Average appointment duration by doctor",
+      "sql": "SELECT\n  d.name AS doctor_name,\n  AVG(t.duration_minutes) AS average_appointment_duration_minutes\nFROM doctors AS d\nJOIN appointments AS a\n  ON d.id = a.doctor_id\nJOIN treatments AS t\n  ON a.id = t.appointment_id\nGROUP BY\n  d.name",
+      "status": "PASS",
+      "row_count": 15,
+      "columns": [
+        "doctor_name",
+        "average_appointment_duration_minutes"
+      ],
+      "rows_sample": [
+        [
+          "Dr. Amit Gupta",
+          56.80555555555556
+        ],
+        [
+          "Dr. Anita Desai",
+          66.66666666666667
+        ],
+        [
+          "Dr. Arjun Mehta",
+          52.5
+        ]
+      ],
+      "error": null,
+      "chart_type": "pie",
+      "time": "3.17s"
+    },
+    {
+      "num": 18,
+      "question": "List patients with overdue invoices",
+      "sql": "SELECT p.first_name, p.last_name, p.email, i.invoice_date, i.total_amount, i.paid_amount, i.status FROM patients AS p JOIN invoices AS i ON p.id = i.patient_id WHERE i.status = 'Overdue' AND i.total_amount > i.paid_amount",
+      "status": "PASS",
+      "row_count": 74,
+      "columns": [
+        "first_name",
+        "last_name",
+        "email",
+        "invoice_date",
+        "total_amount",
+        "paid_amount",
+        "status"
+      ],
+      "rows_sample": [
+        [
+          "Jessica",
+          "Lee",
+          null,
+          "2025-06-01",
+          3922.74,
+          241.72,
+          "Overdue"
+        ],
+        [
+          "Robert",
+          "Jackson",
+          "robert.jackson@email.com",
+          "2025-07-31",
+          4606.36,
+          656.01,
+          "Overdue"
+        ],
+        [
+          "Barbara",
+          "Jones",
+          null,
+          "2025-07-16",
+          2226.35,
+          120.79,
+          "Overdue"
+        ]
+      ],
+      "error": null,
+      "chart_type": null,
+      "time": "1.85s"
+    },
+    {
+      "num": 19,
+      "question": "Compare revenue between departments",
+      "sql": "SELECT\n  d.department,\n  SUM(t.cost) AS total_revenue\nFROM treatments AS t\nJOIN appointments AS a\n  ON t.appointment_id = a.id\nJOIN doctors AS d\n  ON a.doctor_id = d.id\nGROUP BY\n  d.department\nORDER BY\n  total_revenue DESC",
+      "status": "PASS",
+      "row_count": 5,
+      "columns": [
+        "department",
+        "total_revenue"
+      ],
+      "rows_sample": [
+        [
+          "Dermatology",
+          55039.68
+        ],
+        [
+          "Cardiology",
+          46321.159999999996
+        ],
+        [
+          "General Medicine",
+          44129.03
+        ]
+      ],
+      "error": null,
+      "chart_type": "bar",
+      "time": "2.34s"
+    },
+    {
+      "num": 20,
+      "question": "Show patient registration trend by month",
+      "sql": "SELECT STRFTIME('%Y-%m', registered_date) AS registration_month, COUNT(id) AS patient_count FROM patients GROUP BY registration_month ORDER BY registration_month",
+      "status": "PASS",
+      "row_count": 37,
+      "columns": [
+        "registration_month",
+        "patient_count"
+      ],
+      "rows_sample": [
+        [
+          "2023-04",
+          2
+        ],
+        [
+          "2023-05",
+          3
+        ],
+        [
+          "2023-06",
+          7
+        ]
+      ],
+      "error": null,
+      "chart_type": "line",
+      "time": "1.55s"
+    }
+  ]
+}
